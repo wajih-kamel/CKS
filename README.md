@@ -1,2 +1,2 @@
-##CKS
+CKS
 CKS notes repo
