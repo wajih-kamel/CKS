@@ -1,0 +1,26 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:19.3.1-ce.0
+    container_name: gitlab
+    restart: unless-stopped
+    hostname: gitlab.yourcompany.local          # ← server IP or DNS name
+    shm_size: '256m'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.yourcompany.local:8080'   # ← same host, keep :8080
+        nginx['listen_port'] = 8080
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        gitlab_rails['backup_path'] = '/var/opt/gitlab/backups'
+        gitlab_rails['backup_keep_time'] = 604800
+        # resource trim — remove these 3 lines if server has ≥8 GB RAM
+        puma['worker_processes'] = 2
+        sidekiq['concurrency'] = 10
+        prometheus_monitoring['enable'] = false
+    ports:
+      - "8080:8080"
+      - "2222:22"
+    volumes:
+      - /home/kwajih/gitlab/config:/etc/gitlab
+      - /home/kwajih/gitlab/logs:/var/log/gitlab
+      - /home/kwajih/gitlab/data:/var/opt/gitlab
+      - /home/kwajih/gitlab/backups:/var/opt/gitlab/backups
